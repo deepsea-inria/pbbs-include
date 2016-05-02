@@ -88,12 +88,21 @@ struct timer {
 };
 
 static timer _tm;
+#ifdef TIME_MEASURE
 #define timeStatement(_A,_string) _tm.start();  _A; _tm.reportNext(_string);
 #define startTime() _tm.start();
 #define stopTime(_weight,_str) _tm.reportStop(_weight,_str);
 #define reportTime(_str) _tm.reportTotal(_str);
 #define nextTime(_string) _tm.reportNext(_string);
 #define nextTimeN() _tm.reportT(_tm.next());
+#else
+#define timeStatement(_A,_string)
+#define startTime() 
+#define stopTime(_weight,_str) 
+#define reportTime(_str) 
+#define nextTime(_string) 
+#define nextTimeN() _tm.reportT(_tm.next())
+#endif
 
 } //end namespace
 #endif // _BENCH_GETTIME_INCLUDED

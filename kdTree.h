@@ -430,7 +430,6 @@ void processRays(trianglesT Tri, rayT* rays, intT numRays,
 
 
 intT* rayCast(triangles<pointT> Tri, ray<pointT>* rays, intT numRays) {
-  std::cerr << Tri.numPoints << " " << Tri.numTriangles << " " << numRays << std::endl;
   startTime();
 
   // Extract triangles into a separate array for each dimension with
