@@ -226,20 +226,26 @@ class Table {
 
   // returns all the current entries compacted into a sequence
   _seq<eType> entries() {
+#ifdef TIME_MEASURE
     std::cout << "Entries size: " << m << std::endl;
       auto start = std::chrono::system_clock::now();
+#endif
     bool *FL = newA(bool,m);
     cilk_for (intT i=0; i < m; i++) 
       FL[i] = (TA[i] != empty);
+#ifdef TIME_MEASURE
       auto end = std::chrono::system_clock::now();
       std::chrono::duration<float> diff = end - start;
       printf ("exectime intialize entries %.3lf\n", diff.count());
 
       start = std::chrono::system_clock::now();
+#endif
     _seq<eType> R = sequence::pack(TA,FL,m);
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime pack entries %.3lf\n", diff.count());
+#endif
     free(FL);
     return R;
   }
@@ -256,25 +262,37 @@ class Table {
 
 template <class HASH, class ET, class intT>
 _seq<ET> removeDuplicates(_seq<ET> S, intT m, HASH hashF) {
+#ifdef TIME_MEASURE
       std::cout << "Size of table: " << m << std::endl;
       auto start = std::chrono::system_clock::now();
+#endif
   Table<HASH,intT> T(m,hashF);
+#ifdef TIME_MEASURE
       auto end = std::chrono::system_clock::now();
       std::chrono::duration<float> diff = end - start;
       printf ("exectime creation %.3lf\n", diff.count());
+#endif
 
+#ifdef TIME_MEASURE
       start = std::chrono::system_clock::now();
+#endif
   ET* A = S.A;
   {cilk_for(intT i = 0; i < S.n; i++) { T.insert(A[i]);}}
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime insertion %.3lf\n", diff.count());
+#endif
 
+#ifdef TIME_MEASURE
       start = std::chrono::system_clock::now();
+#endif
   _seq<ET> R = T.entries();
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime entries %.3lf\n", diff.count());
+#endif
 
   T.del();
   return R;

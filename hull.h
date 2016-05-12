@@ -25,6 +25,7 @@
 #include "parallel.h"
 #include "geometry.h"
 #include "sequence.h"
+#include "gettime.h"
 
 namespace pbbs {
 
@@ -98,19 +99,19 @@ intT quickHull(intT* I, intT* Itmp, point2d* P, intT n, intT l, intT r, intT dep
   if (n < 2) // || depth == 0) 
     return serialQuickHull(I, P, n, l, r);
   else {
-    auto start = std::chrono::system_clock::now();
+//    auto start = std::chrono::system_clock::now();
     intT idx = maxIndex<double>((intT)0,n,greater<double>(),triangArea(I,P,l,r));
     intT maxP = I[idx];
-      auto end = std::chrono::system_clock::now();
-      std::chrono::duration<float> diff = end - start;
-      printf ("exectime reduce quickHull %.3lf\n", diff.count());
+//      auto end = std::chrono::system_clock::now();
+//      std::chrono::duration<float> diff = end - start;
+//      printf ("exectime reduce quickHull %.3lf\n", diff.count());
 
-      start = std::chrono::system_clock::now();
+//      start = std::chrono::system_clock::now();
     intT n1 = filter(I, Itmp,    n, aboveLine(P, l, maxP));
     intT n2 = filter(I, Itmp+n1, n, aboveLine(P, maxP, r));
-      end = std::chrono::system_clock::now();
-      diff = end - start;
-      printf ("exectime filters quickHull %.3lf\n", diff.count());
+//      end = std::chrono::system_clock::now();
+//      diff = end - start;
+//      printf ("exectime filters quickHull %.3lf\n", diff.count());
 
     intT m1, m2;
     m1 = cilk_spawn quickHull(Itmp, I ,P, n1, l, maxP, depth-1);
@@ -142,47 +143,63 @@ struct minMaxIndex {
 };
     
 _seq<intT> hull(point2d* P, intT n) {
+#ifdef TIME_MEASURE
       auto start = std::chrono::system_clock::now();
+#endif
   pair<intT,intT> minMax = reduce<pair<intT,intT> >((intT)0,n,minMaxIndex(P), makePair());
+#ifdef TIME_MEASURE
       auto end = std::chrono::system_clock::now();
       std::chrono::duration<float> diff = end - start;
       printf ("exectime reduce hull %.3lf\n", diff.count());
 
       start = std::chrono::system_clock::now();
+#endif
   intT l = minMax.first;
   intT r = minMax.second;
   bool* fTop = newA(bool,n);
   bool* fBot = newA(bool,n);
   intT* I = newA(intT, n);
   intT* Itmp = newA(intT, n);                                          
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime init hull %.3lf\n", diff.count());
 
       start = std::chrono::system_clock::now();
+#endif
   cilk_for(intT i=0; i < n; i++) {
     Itmp[i] = i;
     double a = triArea(P[l],P[r],P[i]);
     fTop[i] = a > EPS;
     fBot[i] = a < EPS;
   }
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime for hull %.3lf\n", diff.count());
 
       start = std::chrono::system_clock::now();
+#endif
   intT n1 = pack(Itmp, I, fTop, n);
   intT n2 = pack(Itmp, I+n1, fBot, n);
   free(fTop); free(fBot);
+#ifdef TIME_MEASURE
       end = std::chrono::system_clock::now();
       diff = end - start;
       printf ("exectime packs hull %.3lf\n", diff.count());
 
+      start = std::chrono::system_clock::now();
+#endif
   intT m1; intT m2;
   m1 = cilk_spawn quickHull(I, Itmp, P, n1, l, r, 5);
   m2 = quickHull(I+n1, Itmp+n1, P, n2, r, l, 5);
   cilk_sync;
-
+#ifdef TIME_MEASURE
+      end = std::chrono::system_clock::now();
+      diff = end - start;
+      printf ("exectime hull call hull %.3lf\n", diff.count());
+#endif
+ 
   cilk_for (intT i=0; i < m1; i++) Itmp[i+1] = I[i];
   cilk_for (intT i=0; i < m2; i++) Itmp[i+m1+2] = I[i+n1];
   free(I);

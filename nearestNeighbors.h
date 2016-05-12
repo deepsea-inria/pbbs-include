@@ -25,7 +25,7 @@
 #include "sequence.h"
 #include "parallel.h"
 #include "octTree.h"
-//#include "ppOctTree.h"
+//i
 
 namespace pbbs {
 using namespace std;
@@ -142,20 +142,25 @@ struct kNearestNeighbor {
 template <int maxK, class vertexT>
 void ANN(vertexT** v, int n, int k) {
   typedef kNearestNeighbor<vertexT,maxK> kNNT;
+  startTime();
 
   kNNT T = kNNT(v, n);
+  nextTime("build tree");
 
   //cout << "built tree" << endl;
 
   // this reorders the vertices for locality
   vertexT** vr = T.vertices();
+  nextTime("flattening");
 
   // find nearest k neighbors for each point
   parallel_for_1 (int i=0; i < n; i++) 
     T.kNearest(vr[i], vr[i]->ngh, k);
+  nextTime("find nearest");
 
   free(vr);
   T.del();
+  nextTime("deletion");
 }
 
 template <class PT, int KK>

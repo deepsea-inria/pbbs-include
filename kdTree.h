@@ -3,7 +3,7 @@
 #include "geometry.h"
 #include "gettime.h"
 #include "sequence.h"
-#include "float.h"
+#include <float.h>
 #include "sampleSort.h"
 #include "rayTriangleIntersect.h"
 

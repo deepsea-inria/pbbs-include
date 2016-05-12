@@ -29,6 +29,7 @@
 #include "geometry.h"
 #include "blockRadixSort.h"
 #include "quickSort.h"
+#include "gettime.h"
 
 namespace pbbs {
 using namespace std;
@@ -379,7 +380,7 @@ static void sortBlocksSmall(vertex** S, int count,point center, int* offsets) {
     nodeMemory = NULL;
 
     // divide the space into  ~n**POW "quadrants"
-/*    int logdivs = (int)(log2(count)*GTREE_SUBPROB_POW/(double)center.dimension());
+    int logdivs = (int)(log2(count)*GTREE_SUBPROB_POW/(double)center.dimension());
     if (logdivs > 1 && count > GTREE_BASE_CASE) {
       int divisions = (1<<logdivs); // number of quadrants in each dimension
       //if (count > 1000000) cout << "divisions=" << divisions << endl;
@@ -400,7 +401,7 @@ static void sortBlocksSmall(vertex** S, int count,point center, int* offsets) {
       nodeMemory = newA(gTreeNode, numNewNodes);
       buildRecursiveTree(S,offsets,quadrants,nodeMemory,this,0,logdivs,1);
       free(offsets);
-    } else*/ if (count > gMaxLeafSize) {
+    } else if (count > gMaxLeafSize) {
       if (numNewNodes < (1<<center.dimension())) { 
 	// allocate ~ count/gMaxLeafSize gTreeNodes here
 	numNewNodes = max(GTREE_ALLOC_FACTOR*

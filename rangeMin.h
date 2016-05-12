@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include "parallel.h"
-#include "math.h"
+#include <math.h>
 
 namespace pbbs {
 
