@@ -45,7 +45,7 @@ struct event {
 #define IS_END(_event) ((_event.p & 1))
 #define GET_INDEX(_event) (_event.p >> 1)
 
-struct cmpVal { bool operator() (event a, event b) {return a.v < b.v;}};
+struct cmpVal { bool operator() (event a, event b) {return a.v < b.v || (a.v == b.v && GET_INDEX(a) < GET_INDEX(b));}};
 
 struct range {
   float min;
@@ -193,12 +193,13 @@ cutInfo bestCutSerial(event* E, range r, range r1, range r2, intT n) {
       k = i;
     }
     if (IS_START(E[i])) inLeft++;
-  }
+  }//std::cerr << "Best k: " << k << std::endl;
   return cutInfo(minCost, E[k].v, ln, rn);
 }
 
 // parallel version of best cut
 cutInfo bestCut(event* E, range r, range r1, range r2, intT n) {
+  return bestCutSerial(E, r, r1, r2, n);
   if (n < minParallelSize)
     return bestCutSerial(E, r, r1, r2, n);
   if (r.max - r.min == 0.0) return cutInfo(FLT_MAX, r.min, n, n);
@@ -257,6 +258,7 @@ eventsPair splitEventsSerial(range* boxes, event* events,
 }
 
 eventsPair splitEvents(range* boxes, event* events, float cutOff, intT n) {
+  return splitEventsSerial(boxes, events, cutOff, n);
   if (n < minParallelSize)
     return splitEventsSerial(boxes, events, cutOff, n);
   bool* lower = newA(bool,n);
@@ -283,6 +285,9 @@ treeNode* generateNode(Boxes boxes, Events events, BoundingBox B,
     return new treeNode(events, n, B);
 
   // loop over dimensions and find the best cut across all of them
+/*#ifdef TIME_MEASURE
+      auto start = std::chrono::system_clock::now();
+#endif*/
   cutInfo cuts[3];
   for (int d = 0; d < 3; d++) 
     cuts[d] = cilk_spawn bestCut(events[d], B[d], B[(d+1)%3], B[(d+2)%3], n);
@@ -297,7 +302,13 @@ treeNode* generateNode(Boxes boxes, Events events, BoundingBox B,
   float area = boxSurfaceArea(B);
   float bestCost = CT + CL * cuts[cutDim].cost/area;
   float origCost = (float) (n/2);
+/*#ifdef TIME_MEASURE
+      auto end = std::chrono::system_clock::now();
+      std::chrono::duration<float> diff = end - start;
+      printf ("PBBS-time: best cut find %.3lf\n", diff.count());
+#endif*/
 
+//  std::cerr << n << " " << cuts[cutDim].numLeft << " " << cuts[cutDim].numRight << " " << maxExpand << std::endl;
   // quit recursion early if best cut is not very good
   if (bestCost >= origCost || 
       cuts[cutDim].numLeft + cuts[cutDim].numRight > maxExpand * n/2)
@@ -315,6 +326,10 @@ treeNode* generateNode(Boxes boxes, Events events, BoundingBox B,
   BBR[cutDim] = range(cutOff, BBR[cutDim].max);
   event* rightEvents[3];
   intT nr;
+
+/*#ifdef TIME_MEASURE
+      start = std::chrono::system_clock::now();
+#endif*/
 
   // now split each event array to the two sides
   eventsPair X[3];
@@ -336,6 +351,13 @@ treeNode* generateNode(Boxes boxes, Events events, BoundingBox B,
       abort();
     }
   }
+
+/*#ifdef TIME_MEASURE
+      end = std::chrono::system_clock::now();
+      diff = end - start;
+      printf ("PBBS-time split find %.3lf\n", diff.count());
+#endif*/
+
 
   // free old events and make recursive calls
   for (int i=0; i < 3; i++) free(events[i]);
@@ -460,12 +482,14 @@ intT* rayCast(triangles<pointT> Tri, ray<pointT>* rays, intT numRays) {
       events[d][2*i+1] = event(boxes[d][i].max, i, END);
     }
     compSort(events[d], n*2, cmpVal());
+//    std::sort(events[d], events[d] + n*2, cmpVal());
     boundingBox[d] = range(events[d][0].v, events[d][2*n-1].v);
   }
   nextTime("generate and sort events");
 
   // build the tree
   intT recursionDepth = min(maxRecursionDepth, utils::log2Up(n)-1);
+//  std::cerr << "Depth: " << recursionDepth << std::endl;
   treeNode* R = generateNode(boxes, events, boundingBox, n*2, 
 			    recursionDepth);
   nextTime("build tree");
