@@ -70,8 +70,10 @@ template<class E, class BinPred, class intT>
 
 template<class E, class BinPred, class intT>
 void sampleSort (E* A, intT n, BinPred f) {
-  if (n < SSORT_THR) quickSort(A, n, f);  
-  else {
+  if (n < SSORT_THR) {
+//   quickSort(A, n, f);  
+    std::sort(A, A + n, f);
+  } else {
     intT sq = (intT)(pow(n,0.5));
     intT rowSize = sq*AVG_SEG_SIZE;
     intT numR = (intT)ceil(((double)n)/((double)rowSize));

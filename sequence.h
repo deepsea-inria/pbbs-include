@@ -107,7 +107,7 @@ namespace sequence {
     OT *Sums = newA(OT,l);
     blocked_for (i, s, e, _SCAN_BSIZE, 
 		 Sums[i] = reduceSerial<OT>(s, e, f, g););
-    OT r = reduce<OT>((intT) 0, l, f, getA<OT,intT>(Sums));
+    OT r = pbbs::sequence::reduce<OT>((intT) 0, l, f, getA<OT,intT>(Sums));
     free(Sums);
     return r;
   }
@@ -127,7 +127,7 @@ namespace sequence {
   // need to specify OT since it is not an argument
   template <class OT, class IT, class intT, class F, class G> 
   OT mapReduce(IT* A, intT n, F f, G g) {
-    return reduce<OT>((intT) 0,n,f,getAF<IT,OT,intT,G>(A,g));
+    return pbbs::sequence::reduce<OT>((intT) 0,n,f,getAF<IT,OT,intT,G>(A,g));
   }
 
   template <class ET, class intT, class F, class G> 

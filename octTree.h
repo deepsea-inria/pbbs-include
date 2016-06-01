@@ -161,6 +161,8 @@ public :
   vertex **vertices;
   gTreeNode *nodeMemory;
 
+  static vertex** wv;
+
   // wraps a bounding box around the points and generates
   // a tree.
   static gTreeNode* gTree(vertex** vv, int n) {
@@ -171,17 +173,23 @@ public :
     point center = minPt+(box/2.0);
 
     // copy before calling recursive routine since recursive routine is destructive
-    vertex** v = newA(vertex*,n);
+    wv = newA(vertex*,n);
     {cilk_for(int i=0; i < n; i++) 
-	v[i] = vv[i];}
+	wv[i] = vv[i];}
 
-    gTreeNode* result = new gTreeNode(_seq<vertex*>(v,n),center,box.maxDim(),NULL,0);
+    gTreeNode* result = new gTreeNode(_seq<vertex*>(wv,n),center,box.maxDim(),NULL,0);
     return result;
   }
 
   int IsLeaf() { return (vertices != NULL); }
 
   void del() {
+    free(wv);
+    wv = NULL;
+    del_recursive();
+  }
+
+  void del_recursive() {
     if (IsLeaf()) ; //delete [] vertices;
     else {
       for (int i=0 ; i < (1 << center.dimension()); i++) {
@@ -456,4 +464,7 @@ static void sortBlocksSmall(vertex** S, int count,point center, int* offsets) {
   }
 
 };
+
+template <class pointT, class vectT, class vertexT, class nodeData> 
+vertexT** gTreeNode<pointT, vectT, vertexT, nodeData>::wv;
 } //end namespace
