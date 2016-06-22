@@ -25,6 +25,8 @@
 #include "utils.h"
 #include "sequence.h"
 
+#ifndef _PBBS_DETERMINISTIC_HASH_
+#define _PBBS_DETERMINISTIC_HASH_
 namespace pbbs {
 
 using namespace std;
@@ -377,3 +379,4 @@ _seq<pair<char*,intT>*> removeDuplicates(_seq<pair<char*,intT>*> S) {
   return removeDuplicates(S,hashPair<hashStr,intT>(hashStr()));}
 
 } //end namespace
+#endif /*! _PBBS_DETERMINSTIC_HASH_ !*/

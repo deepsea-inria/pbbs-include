@@ -114,7 +114,7 @@ namespace sequence {
 
   template <class OT, class intT, class F> 
   OT reduce(OT* A, intT n, F f) {
-    return reduce<OT>((intT)0,n,f,getA<OT,intT>(A));
+    return pbbs::sequence::reduce<OT>((intT)0,n,f,getA<OT,intT>(A));
   }
 
   template <class OT, class intT> 

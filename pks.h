@@ -94,6 +94,8 @@ timer LCPtime;
 // This recursive version requires s[n]=s[n+1]=s[n+2] = 0
 // K is the maximum value of any element in s
 pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
+
+
   n = n+1;
   intT n0=(n+2)/3, n1=(n+1)/3, n12=n-n0;
   pair<intT,intT> *C = (pair<intT,intT> *) malloc(n12*sizeof(pair<intT,intT>));
@@ -160,6 +162,7 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
     //cout << endl;
 
     SA12_LCP = suffixArrayRec(s12, n12, names+1, findLCPs); 
+
     SA12 = SA12_LCP.first;
     LCP12 = SA12_LCP.second;
     free(s12);
@@ -177,7 +180,13 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
       cilk_for(intT i=0;i<n12+3;i++) 
 	LCP12[i]=0; //LCP's are all 0 if not recursing
     }
+
   }
+
+#ifdef TIME_MEASURE
+   timer mainTime;
+   mainTime.start();
+#endif
 
   // place ranks for the mod12 elements in full length array
   // mod0 locations of rank will contain garbage
@@ -185,11 +194,21 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
   rank[n]=1; rank[n+1] = 0;
   cilk_for (intT i = 0;  i < n12;  i++) {rank[SA12[i]] = i+2;}
 
+#ifdef TIME_MEASURE
+   printf ("exectime first part %.3lf\n", mainTime.stop());
+
+   mainTime.start();
+#endif
   
   // stably sort the mod 0 suffixes 
   // uses the fact that we already have the tails sorted in SA12
   intT* s0  = newA(intT,n0);
   intT x = sequence::filter(SA12,s0,n12,mod3is1());
+#ifdef TIME_MEASURE
+   printf ("exectime second part %.3lf\n", mainTime.stop());
+   
+   mainTime.start();
+#endif
   pair<intT,intT> *D = (pair<intT,intT> *) malloc(n0*sizeof(pair<intT,intT>));
   D[0].first = s[n-1]; D[0].second = n-1;
   cilk_for (intT i=0; i < x; i++) {
@@ -201,6 +220,12 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
   intT* SA0  = s0; // reuse memory since not overlapping
   cilk_for (intT i=0; i < n0; i++) SA0[i] = D[i].second;
   free(D);
+#ifdef TIME_MEASURE
+    
+    printf ("exectime third part %.3lf\n", mainTime.stop());
+    
+    mainTime.start();
+#endif
 
   compS comp(s,rank);
   intT o = (n%3 == 1) ? 1 : 0;
@@ -239,6 +264,10 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
     free(LCP12);
   }
   free(rank);
+#ifdef TIME_MEASURE
+   
+    printf ("exectime fourth part %.3lf\n", mainTime.stop());
+#endif
   return make_pair(SA,LCP);
 }
 

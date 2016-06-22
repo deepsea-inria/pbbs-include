@@ -25,7 +25,6 @@
 #include "sequence.h"
 #include "parallel.h"
 #include "octTree.h"
-//i
 
 namespace pbbs {
 using namespace std;
@@ -164,23 +163,30 @@ void ANN(vertexT** v, int n, int k) {
 }
 
 template <class PT, int KK>
-struct vertex {
+struct vertexNN {
   typedef PT pointT;
   int identifier;
   pointT pt;         // the point itself
-  vertex* ngh[KK];    // the list of neighbors
-  vertex(pointT p, int id) : pt(p), identifier(id) {}
+  vertexNN* ngh[KK];    // the list of neighbors
+  vertexNN(pointT p, int id) : pt(p), identifier(id) {}
 };
 
 template <int maxK, class pointT>
 void findNearestNeighbors(pointT* p, int n, int k) {
-  typedef vertex<pointT, maxK> vertex;
+  typedef vertexNN<pointT, maxK> vertex;
   int dimensions = p[0].dimension();
+  startTime();
   vertex** v = newA(vertex*,n);
   vertex* vv = newA(vertex, n);
   {cilk_for (int i=0; i < n; i++) 
-      v[i] = new (&vv[i]) vertex(p[i],i);}
+      v[i] = new (&vv[i]) vertex(p[i],i);}nextTime("preliminary execution");
   ANN<maxK>(v, n, k);
+  intT* result = newA(intT, n * k);
+  cilk_for (int i = 0; i < n; i++) {
+    for (int j = 0; j < std::min(k, n - 1); j++) {
+      result[i * k + j] = v[i]->ngh[j]->identifier;
+    }
+  }nextTime("exit execution");
 }
 
 } //end namespace

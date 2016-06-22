@@ -165,9 +165,13 @@ inline float inBox(pointT p, BoundingBox B) {
 	  p.z >= (B[2].min - epsilon) && p.z <= (B[2].max + epsilon));
 }
 
+timer cutTimer;
 // sequential version of best cut
 cutInfo bestCutSerial(event* E, range r, range r1, range r2, intT n) {
   if (r.max - r.min == 0.0) return cutInfo(FLT_MAX, r.min, n, n);
+#ifdef TIME_MEASURE
+    cutTimer.start();
+#endif
   float area = 2 * (r1.max-r1.min) * (r2.max-r2.min);
   float diameter = 2 * ((r1.max-r1.min) + (r2.max-r2.min));
 
@@ -194,16 +198,22 @@ cutInfo bestCutSerial(event* E, range r, range r1, range r2, intT n) {
     }
     if (IS_START(E[i])) inLeft++;
   }//std::cerr << "Best k: " << k << std::endl;
+#ifdef TIME_MEASURE
+    cutTimer.stop();
+#endif
   return cutInfo(minCost, E[k].v, ln, rn);
 }
 
 // parallel version of best cut
 cutInfo bestCut(event* E, range r, range r1, range r2, intT n) {
-  return bestCutSerial(E, r, r1, r2, n);
-  if (n < minParallelSize)
-    return bestCutSerial(E, r, r1, r2, n);
-  if (r.max - r.min == 0.0) return cutInfo(FLT_MAX, r.min, n, n);
-
+//  std::cerr << n << std::endl;
+//  return bestCutSerial(E, r, r1, r2, n);
+  if (n < minParallelSize) { //std::cerr << "Sequential " << n << std::endl;
+    return bestCutSerial(E, r, r1, r2, n);}
+  if (r.max - r.min == 0.0) return cutInfo(FLT_MAX, r.min, n, n);//std::cerr << "Parallel " << n << std::endl;
+#ifdef TIME_MEASURE
+    cutTimer.start();
+#endif
   // area of two orthogonal faces
   float orthogArea = 2 * ((r1.max-r1.min) * (r2.max-r2.min));
 
@@ -234,13 +244,19 @@ cutInfo bestCut(event* E, range r, range r1, range r2, intT n) {
   intT ln = k - upperC[k];
   intT rn = n/2 - (upperC[k] + IS_END(E[k]));
   free(upperC); free(cost);
+#ifdef TIME_MEASURE
+    cutTimer.stop();
+#endif
   return cutInfo(c, E[k].v, ln, rn);
 }
 
 typedef pair<_seq<event>, _seq<event> > eventsPair;
-
+timer splitTimer;
 eventsPair splitEventsSerial(range* boxes, event* events, 
 			     float cutOff, intT n) {
+#ifdef TIME_MEASURE
+    splitTimer.start();
+#endif
   intT l = 0;
   intT r = 0;
   event* eventsLeft = newA(event,n);
@@ -253,14 +269,20 @@ eventsPair splitEventsSerial(range* boxes, event* events,
 	eventsRight[r++] = events[i]; 
     } else eventsRight[r++] = events[i]; 
   }
+#ifdef TIME_MEASURE
+    splitTimer.stop();
+#endif
   return eventsPair(_seq<event>(eventsLeft,l), 
 		    _seq<event>(eventsRight,r));
 }
 
 eventsPair splitEvents(range* boxes, event* events, float cutOff, intT n) {
-  return splitEventsSerial(boxes, events, cutOff, n);
+//  return splitEventsSerial(boxes, events, cutOff, n);
   if (n < minParallelSize)
     return splitEventsSerial(boxes, events, cutOff, n);
+#ifdef TIME_MEASURE
+    splitTimer.start();
+#endif
   bool* lower = newA(bool,n);
   bool* upper = newA(bool,n);
 
@@ -274,6 +296,9 @@ eventsPair splitEvents(range* boxes, event* events, float cutOff, intT n) {
   _seq<event> R = sequence::pack(events, upper, n);
   free(lower); free(upper);
 
+#ifdef TIME_MEASURE
+    splitTimer.stop();
+#endif
   return eventsPair(L,R);
 }
 
@@ -366,7 +391,7 @@ treeNode* generateNode(Boxes boxes, Events events, BoundingBox B,
   L = cilk_spawn generateNode(boxes, leftEvents, BBL, nl, maxDepth-1);
   R = generateNode(boxes, rightEvents, BBR, nr, maxDepth-1);
   cilk_sync;
-
+//  for (int i = 0; i < 3; i++) free(events[i]);
   return new treeNode(L, R, cutDim, cutOff, B);
  }
 
@@ -518,7 +543,10 @@ intT* rayCast(triangles<pointT> Tri, ray<pointT>* rays, intT numRays) {
       }
     }
   }
-
+#ifdef TIME_MEASURE
+  printf ("exectime cut %.3lf\n", cutTimer.total());
+  printf ("exectime split %.3lf\n", splitTimer.total());
+#endif
   if (STATS)
     cout << "tcount=" << tcount << " ccount=" << ccount << endl;
   return results;
