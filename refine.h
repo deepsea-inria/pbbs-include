@@ -313,7 +313,7 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     badTT.del();
     intT numBad = badT.n;
 
-    cout << "numBad = " << numBad << endl;
+//    cout << "numBad = " << numBad << endl;
     if (numBad == 0) break;
     if (numPoints + numBad > totalVertices) {
       cout << "ran out of vertices" << endl;
@@ -356,7 +356,7 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     vv[II[i]].id = i;
     rp[i] = vv[II[i]].pt;
   }
-  cout << "total points = " << nO << endl;
+//  cout << "total points = " << nO << endl;
   I.del();
 
   // Extract Triangles for result
@@ -368,7 +368,7 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     tri t = Triangs[I.A[i]];
     rt[i] = triangle(t.vtx[0]->id, t.vtx[1]->id, t.vtx[2]->id);
   }
-  cout << "total triangles = " << I.n << endl;
+//  cout << "total triangles = " << I.n << endl;
 
   I.del();  free(flag);  free(Triangs);  free(v);  free(vv);
   nextTime("finish");

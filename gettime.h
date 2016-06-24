@@ -22,67 +22,101 @@ struct timer {
     totalWeight=0.0;
     on=0; tzp = tz;}
   double getTime() {
+#ifdef TIME_MEASURE
     timeval now;
     gettimeofday(&now, &tzp);
     return ((double) now.tv_sec) + ((double) now.tv_usec)/1000000.;
+#endif
   }
   void start () {
+#ifdef TIME_MEASURE
     on = 1;
     lastTime = getTime();
+#endif
   } 
   double stop () {
+#ifdef TIME_MEASURE
     on = 0;
     double d = (getTime()-lastTime);
     totalTime += d;
     return d;
+#endif
   } 
   double stop (double weight) {
+#ifdef TIME_MEASURE
     on = 0;
     totalWeight += weight;
     double d = (getTime()-lastTime);
     totalTime += weight*d;
     return d;
+#endif
   } 
 
   double total() {
+#ifdef TIME_MEASURE
     if (on) return totalTime + getTime() - lastTime;
     else return totalTime;
+#endif
   }
 
   double next() {
+#ifdef TIME_MEASURE
     if (!on) return 0.0;
     double t = getTime();
     double td = t - lastTime;
     totalTime += td;
     lastTime = t;
     return td;
+#endif
   }
 
   void reportT(double time) {
+#ifdef TIME_MEASURE
     std::cout << "PBBS-time: " << std::setprecision(3) << time <<  std::endl;;
+#endif
   }
 
   void reportTime(double time) {
+#ifdef TIME_MEASURE
     reportT(time);
+#endif
   }
 
   void reportStop(double weight, std::string str) {
+#ifdef TIME_MEASURE
     std::cout << str << " :" << weight << ": ";
     reportTime(stop(weight));
+#endif
+  }
+
+  void reportStop(std::string str) {
+#ifdef TIME_MEASURE
+    std::cout << str << ": ";
+    reportTime(stop());
+#endif
   }
 
   void reportTotal() {
+#ifdef TIME_MEASURE
     double to = (totalWeight > 0.0) ? total()/totalWeight : total();
     reportTime(to);
     totalTime = 0.0;
     totalWeight = 0.0;
+#endif
   }
 
   void reportTotal(std::string str) {
+#ifdef TIME_MEASURE
     std::cout << str << " : "; 
-    reportTotal();}
+    reportTotal();
+#endif
+  }
 
-  void reportNext() {reportTime(next());}
+  void reportNext() {
+#ifdef TIME_MEASURE
+    reportTime(next());
+#endif
+  }
 
   void reportNext(std::string str) {std::cout << str << " : "; reportNext();}
 };
