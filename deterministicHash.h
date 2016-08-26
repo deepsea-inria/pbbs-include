@@ -228,26 +228,12 @@ class Table {
 
   // returns all the current entries compacted into a sequence
   _seq<eType> entries() {
-#ifdef TIME_MEASURE
-    std::cout << "Entries size: " << m << std::endl;
-      auto start = std::chrono::system_clock::now();
-#endif
     bool *FL = newA(bool,m);
     cilk_for (intT i=0; i < m; i++) 
       FL[i] = (TA[i] != empty);
-#ifdef TIME_MEASURE
-      auto end = std::chrono::system_clock::now();
-      std::chrono::duration<float> diff = end - start;
-      printf ("exectime intialize entries %.3lf\n", diff.count());
 
-      start = std::chrono::system_clock::now();
-#endif
     _seq<eType> R = sequence::pack(TA,FL,m);
-#ifdef TIME_MEASURE
-      end = std::chrono::system_clock::now();
-      diff = end - start;
-      printf ("exectime pack entries %.3lf\n", diff.count());
-#endif
+
     free(FL);
     return R;
   }

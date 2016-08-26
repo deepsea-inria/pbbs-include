@@ -283,9 +283,9 @@ pair<intT*,intT*> suffixArray(char* s, intT n, bool findLCPs) {
   //mergeTime.clear();
   //LCPtime.clear();
   pair<intT*,intT*> SA_LCP = suffixArrayRec(ss, n, k, findLCPs);
-  cout << "Radix sort time: " << radixTime.total() << endl;
-  cout << "Merge time: " << mergeTime.total() << endl;
-  cout << "LCP time: " << LCPtime.total() << endl;
+//  cout << "Radix sort time: " << radixTime.total() << endl;
+//  cout << "Merge time: " << mergeTime.total() << endl;
+//  cout << "LCP time: " << LCPtime.total() << endl;
   free(ss);
   return SA_LCP;
 }

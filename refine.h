@@ -297,13 +297,19 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     }
   }
   nextTime("Start");
-
+  timer entriesTimer;
+  timer packTimer;
+  timer tableTimer;
+  timer refiningTimer;
   // Each iteration processes all bad triangles from the workQ while
   // adding new bad triangles to a new queue
   while (1) {
+    entriesTimer.start();
     _seq<tri*> badTT = workQ.entries();
     workQ.del();
+    entriesTimer.stop();
 
+    packTimer.start();
     // packs out triangles that are no longer bad
     bool* flags = newA(bool, badTT.n);
     cilk_for (intT i=0; i < badTT.n; i++) 
@@ -312,14 +318,14 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     free(flags);
     badTT.del();
     intT numBad = badT.n;
-
+    packTimer.stop();
 //    cout << "numBad = " << numBad << endl;
     if (numBad == 0) break;
     if (numPoints + numBad > totalVertices) {
       cout << "ran out of vertices" << endl;
       abort();
     }
-
+    tableTimer.start();
     // allocate 1 vertex per bad triangle and assign triangle to it
     cilk_for (intT i=0; i < numBad; i++) {
       badT.A[i]->bad = 2; // used to detect whether touched
@@ -328,7 +334,7 @@ triangles<point2d> refine(triangles<point2d> Tri) {
 
     // the new work queue
     workQ = makeTriangleTable(numBad);
-
+    tableTimer.stop();refiningTimer.start();
     // This does all the work
     addRefiningVertices(v + numPoints - n, numBad, numPoints, workQ);
 
@@ -336,6 +342,7 @@ triangles<point2d> refine(triangles<point2d> Tri) {
     cilk_for (intT i=0; i < numBad; i++) 
       if (badT.A[i]->bad==2) workQ.insert(badT.A[i]);
     badT.del();
+    refiningTimer.stop();
 
     numPoints += numBad;
     numTriangs += 2*numBad;
@@ -372,6 +379,8 @@ triangles<point2d> refine(triangles<point2d> Tri) {
 
   I.del();  free(flag);  free(Triangs);  free(v);  free(vv);
   nextTime("finish");
+  entriesTimer.reportTotal("entries");
+  packTimer.reportTotal("pack"); tableTimer.reportTotal("table"); refiningTimer.reportTotal("refining");
   return triangles<point2d>(nO, I.n, rp, rt);
 }
 } // end namespace
