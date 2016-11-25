@@ -5,7 +5,7 @@
 #if defined(USE_CILK_PLUS_RUNTIME) || defined(USE_PASL_RUNTIME)
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
-//#define parallel_for cilk_for
+#define parallel_for cilk_for
 #define parallel_main main
 #define parallel_for_1 _Pragma("cilk grainsize = 1") cilk_for
 #define parallel_for_256 _Pragma("cilk grainsize = 256") cilk_for
