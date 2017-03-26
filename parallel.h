@@ -2,7 +2,7 @@
 #define _PARALLEL_H_
 
 // intel cilk+
-#if defined(USE_CILK_PLUS_RUNTIME) || defined(USE_PASL_RUNTIME)
+#if defined(USE_CILK_PLUS_RUNTIME)
 #include <cilk/cilk.h>
 #include <cilk/cilk_api.h>
 #define parallel_for cilk_for
