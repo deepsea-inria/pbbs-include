@@ -289,7 +289,7 @@ eventsPair splitEvents(range* boxes, event* events, float cutOff, intT n) {
   cilk_for (intT i=0; i <n; i++) {
     intT b = GET_INDEX(events[i]);
     lower[i] = boxes[b].min < cutOff;
-    upper[i] = boxes[b].max > cutOff;
+    upper[i] = boxes[b].max > cutOff || boxes[b].min >= cutOff;
   }
 
   _seq<event> L = sequence::pack(events, lower, n);
