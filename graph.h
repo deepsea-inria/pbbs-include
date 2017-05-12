@@ -109,6 +109,7 @@ struct graph {
   intT n;
   intT m;
   intT* allocatedInplace;
+  graph() { }
   graph(vertex<intT>* VV, intT nn, intT mm) 
     : V(VV), n(nn), m(mm), allocatedInplace(NULL) {}
   graph(vertex<intT>* VV, intT nn, intT mm, intT* ai) 
