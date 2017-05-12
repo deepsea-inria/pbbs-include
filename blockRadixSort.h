@@ -32,8 +32,6 @@
 
 namespace pbbs {
 
-using namespace std;
-
 namespace intSort {
 
   // Cannot be greater than 8 without changing definition of bIndexT
@@ -92,7 +90,7 @@ namespace intSort {
 
     // need 3 bucket sets per block
     int expand = (sizeof(E)<=4) ? 64 : 32;
-    intT blocks = min(numBK/3,(1+n/(BUCKETS*expand)));
+    intT blocks = std::min(numBK/3,(1+n/(BUCKETS*expand)));
 
     if (blocks < 2) {
       radixStepSerial(A, B, Tmp, BK[0], n, m, extract);
@@ -105,7 +103,7 @@ namespace intSort {
 
     parallel_for_1 (intT i=0; i < blocks; i++) {
       intT od = i*nn;
-      intT nni = min(max<intT>(n-od,0),nn);
+      intT nni = std::min(std::max<intT>(n-od,0),nn);
       radixBlock(A+od, B, Tmp+od, cnts + m*i, oB + m*i, od, nni, m, extract);
     }
 
@@ -196,7 +194,6 @@ namespace intSort {
     
     typedef intT bucketsT[BUCKETS];
 
-
     int bits = utils::log2Up(m);
     intT numBK = 1+n/(BUCKETS*8);
 
@@ -267,14 +264,14 @@ void integerSort(intT *A, intT n, char* s) {
 }
 
 template <class T, class intT>
-void integerSort(pair<intT,T> *A, intT n) {
+void integerSort(std::pair<intT,T> *A, intT n) {
   intT maxV = sequence::mapReduce<uintT>(A,n,utils::maxF<uintT>(),
 					utils::firstF<uintT,T>());
   intSort::iSort(A, (intT*) NULL, n, maxV+1,  utils::firstF<uintT,T>());
 }
 
 template <class T, class intT>
-void integerSort(pair<intT,T> *A, intT n, char* s) {
+void integerSort(std::pair<intT,T> *A, intT n, char* s) {
   intT maxV = sequence::mapReduce<uintT>(A,n,utils::maxF<uintT>(),
 					utils::firstF<uintT,T>());
   intSort::iSort(A, (intT*) NULL, n, maxV+1, false, s, utils::firstF<uintT,T>());
