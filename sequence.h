@@ -28,7 +28,7 @@
 #include "utils.h"
 
 namespace pbbs {
-using namespace std;
+  //using namespace std;
 
 #define _BSIZE 2048
 #define _SCAN_LOG_BSIZE 10
@@ -88,7 +88,7 @@ namespace sequence {
     intT _l = nblocks(_n,_bsize);			\
     cilk_for (intT _i = 0; _i < _l; _i++) {		\
       intT _s = _ss + _i * (_bsize);			\
-      intT _e = min(_s + (_bsize), _ee);			\
+      intT _e = std::min(_s + (_bsize), _ee);		\
       _body						\
 	}						\
   }
@@ -280,7 +280,7 @@ namespace sequence {
   }
 
   template <class ET, class intT, class F> 
-  pair<_seq<ET>,_seq<ET> > pack2(ET* Out, bool* Fl1, bool* Fl2, 
+  std::pair<_seq<ET>,_seq<ET> > pack2(ET* Out, bool* Fl1, bool* Fl2, 
 				 intT s, intT e, F f) {
     intT l = nblocks(e-s, _F_BSIZE);
     intT *Sums1 = newA(intT,l);
@@ -303,7 +303,7 @@ namespace sequence {
 		packSerial(Out1+Sums1[i], Fl1, s, e, f);
 		packSerial(Out2+Sums2[i], Fl2, s, e, f););
     free(Sums1); free(Sums2);
-    return pair<_seq<ET>,_seq<ET> >(_seq<ET>(Out1,m1),_seq<ET>(Out2,m2));
+    return std::pair<_seq<ET>,_seq<ET> >(_seq<ET>(Out1,m1),_seq<ET>(Out2,m2));
   }
 
   template <class ET, class intT> 
@@ -311,10 +311,10 @@ namespace sequence {
     return pack(Out, Fl, (intT) 0, n, getA<ET,intT>(In)).n;}
 
   template <class ET, class intT> 
-  pair<intT,intT> pack2(ET* In, ET* Out, bool* Fl1, bool* Fl2, intT n) {
-    pair<_seq<ET>,_seq<ET> > r;
+  std::pair<intT,intT> pack2(ET* In, ET* Out, bool* Fl1, bool* Fl2, intT n) {
+    std::pair<_seq<ET>,_seq<ET> > r;
     r = pack2(Out, Fl1, Fl2, (intT) 0, n, getA<ET,intT>(In));
-    return pair<intT,intT>(r.first.n,r.second.n);
+    return std::pair<intT,intT>(r.first.n,r.second.n);
   }
 
   template <class ET, class intT> 
