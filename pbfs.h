@@ -94,7 +94,7 @@ pair<intT,intT> pBFS(intT start, graph::graph<intT> GA) {
     frontierSize = sequence::filter(FrontierNext,Frontier,nr,nonNegF());
     filterTimer.stop();
   }
-  std::cerr << totalVisited << " " << round << std::endl;
+  //  std::cerr << totalVisited << " " << round << std::endl;
   scanTimer.reportTotal("scan total");
   mainTimer.reportTotal("main total");
   filterTimer.reportTotal("filter total");
