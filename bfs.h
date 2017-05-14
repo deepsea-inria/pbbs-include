@@ -93,8 +93,9 @@ pair<intT,intT> BFS(intT start, graph::graph<intT> GA) {
     // Filter out the empty slots (marked with -1)
     frontierSize = sequence::filter(FrontierNext,Frontier,nr,nonNegF());filterTimer.stop();
   }
-  std::cerr << totalVisited << " " << round << std::endl;
-  scanTimer.reportTotal("scan total");
+
+  //  std::cerr << totalVisited << " " << round << std::endl;
+  //  scanTimer.reportTotal("scan total");
   mainTimer.reportTotal("main total");
   filterTimer.reportTotal("filter total");
   free(FrontierNext); free(Frontier); free(Counts); free(Visited);
