@@ -42,8 +42,8 @@ struct sparseRowMajor {
   ETYPE* Values;
   void del() {free(Starts); free(ColIds); if (Values != NULL) free(Values);}
   sparseRowMajor(intT n, intT m, intT nz, intT* S, intT* C, ETYPE* V) :
-    numRows(n), numCols(m), nonZeros(nz), 
-    Starts(S), ColIds(C), Values(V) {}
+  numRows(n), numCols(m), nonZeros(nz),
+  Starts(S), ColIds(C), Values(V) {}
 };
 
 //typedef sparseRowMajor<double> sparseRowMajorD;
@@ -67,7 +67,7 @@ struct edgeArray {
   intT nonZeros;
   void del() {free(E);}
   edgeArray(edge<intT> *EE, intT r, intT c, intT nz) :
-    E(EE), numRows(r), numCols(c), nonZeros(nz) {}
+  E(EE), numRows(r), numCols(c), nonZeros(nz) {}
   edgeArray() {}
 };
 
@@ -110,10 +110,10 @@ struct graph {
   intT m;
   intT* allocatedInplace;
   graph() { }
-  graph(vertex<intT>* VV, intT nn, intT mm) 
-    : V(VV), n(nn), m(mm), allocatedInplace(NULL) {}
-  graph(vertex<intT>* VV, intT nn, intT mm, intT* ai) 
-    : V(VV), n(nn), m(mm), allocatedInplace(ai) {}
+  graph(vertex<intT>* VV, intT nn, intT mm)
+  : V(VV), n(nn), m(mm), allocatedInplace(NULL) {}
+  graph(vertex<intT>* VV, intT nn, intT mm, intT* ai)
+  : V(VV), n(nn), m(mm), allocatedInplace(ai) {}
   graph copy() {
     vertex<intT>* VN = newA(vertex<intT>,n);
     intT* Edges = newA(intT,m);
@@ -122,7 +122,7 @@ struct graph {
       VN[i] = V[i];
       VN[i].Neighbors = Edges + k;
       for (intT j =0; j < V[i].degree; j++) 
-	Edges[k++] = V[i].Neighbors[j];
+        Edges[k++] = V[i].Neighbors[j];
     }
     return graph(VN, n, m, Edges);
   } 
