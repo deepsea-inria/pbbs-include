@@ -64,13 +64,13 @@ template<class E, class BinPred, class intT>
   c[pos_c] = length_a - pos_a;
 }
 
-#define SSORT_THR 100000
+#define SSORT_THRESH 100000
 #define AVG_SEG_SIZE 2
 #define PIVOT_QUOT 2
 
 template<class E, class BinPred, class intT>
 void sampleSort (E* A, intT n, BinPred f) {
-  if (n < SSORT_THR) {
+  if (n < SSORT_THRESH) {
    quickSort(A, n, f);  
 //    std::sort(A, A + n, f);
   } else {
@@ -125,9 +125,12 @@ void sampleSort (E* A, intT n, BinPred f) {
     //nextTime("sort and merge");
 
     // transpose from rows to columns
-    sequence::scan(segSizes, offsetA, numR*numSegs, plus<intT>(),(intT)0);
+    auto plus = [&] (intT x, intT y) {
+      return x + y;
+    };
+    sequence::scan(segSizes, offsetA, numR*numSegs, plus,(intT)0);
     transpose<intT,intT>(segSizes, offsetB).trans(numR, numSegs);
-    sequence::scan(offsetB, offsetB, numR*numSegs, plus<intT>(),(intT)0);
+    sequence::scan(offsetB, offsetB, numR*numSegs, plus,(intT)0);
     blockTrans<E,intT>(A, B, offsetA, offsetB, segSizes).trans(numR, numSegs);
     {cilk_for (intT i=0; i < n; ++i) A[i] = B[i];}
     //nextTime("transpose");
