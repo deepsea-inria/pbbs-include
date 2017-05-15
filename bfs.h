@@ -83,8 +83,9 @@ namespace pbbs {
           intT ngh = G[v].Neighbors[j];
           if (Visited[ngh] == 0 && !__sync_val_compare_and_swap(&Visited[ngh], 0, 1)) {//utils::CAS(&Visited[ngh],(intT)0,(intT)1)) {
             FrontierNext[o+j] = G[v].Neighbors[k++] = ngh;
+          } else {
+            FrontierNext[o+j] = -1;
           }
-          else FrontierNext[o+j] = -1;
         }
         G[v].degree = k;
       }};
