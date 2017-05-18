@@ -66,7 +66,6 @@ pair<intT,intT> pBFS(intT start, graph::graph<intT> GA) {
     mainTimer.start();
     // For each vertexB in the frontier try to "hook" unvisited neighbors.
     { cilk_for(intT i = 0; i < frontierSize; i++) {
-      intT k= 0;
       intT v = Frontier[i];
       intT o = Counts[i];
       if (G[v].degree < 100) {
