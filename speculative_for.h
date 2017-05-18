@@ -75,8 +75,8 @@ intT speculative_for(S step, intT s, intT e, int granularity,
 
     if (hasState) {
       parallel_for (intT i =0; i < size; i++) {
-	if (i >= numberKeep) I[i] = numberDone + i;
-	keep[i] = state[i].reserve(I[i]);
+        if (i >= numberKeep) I[i] = numberDone + i;
+        keep[i] = state[i].reserve(I[i]);
       } 
     } else {
       parallel_for (intT i =0; i < size; i++) {
