@@ -172,7 +172,7 @@ struct vertexNN {
 };
 
 template <int maxK, class pointT>
-void findNearestNeighbors(pointT* p, int n, int k) {
+void findNearestNeighbors(pointT* p, int n, int k, intT* result) {
   typedef vertexNN<pointT, maxK> vertex;
   int dimensions = p[0].dimension();
   startTime();
@@ -181,12 +181,18 @@ void findNearestNeighbors(pointT* p, int n, int k) {
   {cilk_for (int i=0; i < n; i++) 
       v[i] = new (&vv[i]) vertex(p[i],i);}nextTime("preliminary execution");
   ANN<maxK>(v, n, k);
-  intT* result = newA(intT, n * k);
   cilk_for (int i = 0; i < n; i++) {
     for (int j = 0; j < std::min(k, n - 1); j++) {
       result[i * k + j] = v[i]->ngh[j]->identifier;
     }
   }nextTime("exit execution");
 }
+
+template <int maxK, class pointT>
+void findNearestNeighbors(pointT* p, int n, int k) {
+  intT* result = newA(intT, n * k);
+  findNearestNeighbors(p, n, k, result);
+}
+
 
 } //end namespace
