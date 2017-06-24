@@ -74,7 +74,7 @@ void myRMQ::precomputeQueries(){
   for(intT j=1;j<depth;j++) {
     cilk_for(intT i=0; i< m-dist; i++){
       if (a[table[j-1][i]] <= a[table[j-1][i+dist]])
-	table[j][i] = table[j-1][i];
+        table[j][i] = table[j-1][i];
       else table[j][i] = table[j-1][i+dist];
     }
     cilk_for(intT l = m-dist; l<m; l++) {
