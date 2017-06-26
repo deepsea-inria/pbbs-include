@@ -175,8 +175,8 @@ public :
     // copy before calling recursive routine since recursive routine is destructive
     wv = newA(vertex*,n);
     {cilk_for(int i=0; i < n; i++) 
-	wv[i] = vv[i];}
-
+        wv[i] = vv[i];}
+    
     gTreeNode* result = new gTreeNode(_seq<vertex*>(wv,n),center,box.maxDim(),NULL,0);
     return result;
   }
@@ -386,7 +386,7 @@ static void sortBlocksSmall(vertex** S, int count,point center, int* offsets) {
     center = cnt;
     vertices = NULL;
     nodeMemory = NULL;
-
+    
     // divide the space into  ~n**POW "quadrants"
     int logdivs = (int)(log2(count)*GTREE_SUBPROB_POW/(double)center.dimension());
     if (logdivs > 1 && count > GTREE_BASE_CASE) {
@@ -394,70 +394,70 @@ static void sortBlocksSmall(vertex** S, int count,point center, int* offsets) {
       //if (count > 1000000) cout << "divisions=" << divisions << endl;
       int quadrants = (1<<(center.dimension() * logdivs)); // total number
       int *offsets = newA(int,quadrants);
-
+      
       //nextTime("before sort");
       sortBlocksBig(S.A, count, quadrants, logdivs, 
-		    this->size, this->center,offsets);
+                    this->size, this->center,offsets);
       //nextTime("sort time");
-
+      
       numNewNodes = (1<<center.dimension());
       for (int i=0; i<logdivs;i++) {
-	numNewNodes = ((numNewNodes << center.dimension())
-		       + (1<<center.dimension()));
+        numNewNodes = ((numNewNodes << center.dimension())
+                       + (1<<center.dimension()));
       }
-	
+      
       nodeMemory = newA(gTreeNode, numNewNodes);
       buildRecursiveTree(S,offsets,quadrants,nodeMemory,this,0,logdivs,1);
       free(offsets);
     } else if (count > gMaxLeafSize) {
       if (numNewNodes < (1<<center.dimension())) { 
-	// allocate ~ count/gMaxLeafSize gTreeNodes here
-	numNewNodes = max(GTREE_ALLOC_FACTOR*
-			  max(count/gMaxLeafSize, 1<<center.dimension()),
-			  1<<center.dimension());
-	nodeMemory = newA(gTreeNode,numNewNodes);
-	newNodes = nodeMemory;
+        // allocate ~ count/gMaxLeafSize gTreeNodes here
+        numNewNodes = max(GTREE_ALLOC_FACTOR*
+                          max(count/gMaxLeafSize, 1<<center.dimension()),
+                          1<<center.dimension());
+        nodeMemory = newA(gTreeNode,numNewNodes);
+        newNodes = nodeMemory;
       }
       //      newNodes = (nodeMemory = newA(gTreeNode,(1<<center.dimension())));
-
+      
       int quadrants = ( 1<< center.dimension());
       int offsets[8];
-
+      
       if (1) {
         sortBlocksSmall(S.A, S.n, center, offsets);
       } else {
-      compSort(S.A, S.n, compare(this));
-      for (int q=0; q<quadrants; q++) {
-	int f = 0;
-	int l = S.n;
-	while (f < l) {
-	  int g = (f+l)/2;
-	  if (findQuadrant(S.A[g]) < q) {
-	    f = g+1;
-	  } else {
-	    l = g;
-	  }
-	}
-	offsets[q] = f;
+        compSort(S.A, S.n, compare(this));
+        for (int q=0; q<quadrants; q++) {
+          int f = 0;
+          int l = S.n;
+          while (f < l) {
+            int g = (f+l)/2;
+            if (findQuadrant(S.A[g]) < q) {
+              f = g+1;
+            } else {
+              l = g;
+            }
+          }
+          offsets[q] = f;
+        }
       }
-      }
-	
+      
       // Give each child its appropriate center and size
       // The centers are offset by size/4 in each of the dimensions
       int usedNodes = 0;
       for (int i=0 ; i < quadrants; i++) {
-	int l = ((i == quadrants-1) ? S.n : offsets[i+1]) - offsets[i];
-	_seq<vertex*> A = _seq<vertex*>(S.A + offsets[i],l);
-	point newcenter = center.offsetPoint(i, size/4.0);
+        int l = ((i == quadrants-1) ? S.n : offsets[i+1]) - offsets[i];
+        _seq<vertex*> A = _seq<vertex*>(S.A + offsets[i],l);
+        point newcenter = center.offsetPoint(i, size/4.0);
        	children[i] = newTree(A,newcenter,size/2.0,newNodes+usedNodes,(numNewNodes - (1<<center.dimension()))*l/count + 1);
-	usedNodes += (numNewNodes - (1<<center.dimension()))*l/count + 1;
+        usedNodes += (numNewNodes - (1<<center.dimension()))*l/count + 1;
       }
       for (int i=0 ; i < quadrants; i++) 
-	data = data + children[i]->data;
+        data = data + children[i]->data;
     } else {
       vertices = S.A;
       for (int i=0; i < count; i++) {
-	data = data + S.A[i];
+        data = data + S.A[i];
       }
       //S.del();
     }

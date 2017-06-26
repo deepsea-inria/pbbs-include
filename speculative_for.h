@@ -72,7 +72,6 @@ intT speculative_for(S step, intT s, intT e, int granularity,
     }
     intT size = std::min(currentRoundSize, e - numberDone);
     totalProcessed += size;
-
     if (hasState) {
       parallel_for (intT i =0; i < size; i++) {
         if (i >= numberKeep) I[i] = numberDone + i;
