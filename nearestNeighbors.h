@@ -157,7 +157,7 @@ void ANN(vertexT** v, int n, int k) {
     T.kNearest(vr[i], vr[i]->ngh, k);
   nextTime("find nearest");
 
-  free(vr);
+  delete [] vr;
   T.del();
   nextTime("deletion");
 }
