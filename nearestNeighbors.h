@@ -191,7 +191,7 @@ void findNearestNeighbors(pointT* p, int n, int k, intT* result) {
 template <int maxK, class pointT>
 void findNearestNeighbors(pointT* p, int n, int k) {
   intT* result = newA(intT, n * k);
-  findNearestNeighbors(p, n, k, result);
+  findNearestNeighbors<maxK, pointT>(p, n, k, result);
 }
 
 
