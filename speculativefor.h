@@ -41,10 +41,10 @@ intT speculative_for(S step, intT s, intT e, int granularity,
   while (numberDone < e) {
     //cout << "numberDone=" << numberDone << endl;
     if (round++ > maxTries) {
-      cout << "speculativeLoop: too many iterations, increase maxTries parameter" << endl;
+      std::cout << "speculativeLoop: too many iterations, increase maxTries parameter" << std::endl;
       abort();
     }
-    intT size = min(maxRoundSize, e - numberDone);
+    intT size = std::min(maxRoundSize, e - numberDone);
     totalProcessed += size;
 
     if (hasState) {
@@ -69,7 +69,7 @@ intT speculative_for(S step, intT s, intT e, int granularity,
 
     // keep edges that failed to hook for next round
     numberKeep = sequence::pack(I, Ihold, keep, size);
-    swap(I, Ihold);
+    std:: swap(I, Ihold);
     numberDone += size - numberKeep;
   }
   free(I); free(Ihold); free(keep); 
