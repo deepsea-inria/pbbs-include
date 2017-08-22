@@ -25,80 +25,82 @@
 #include "graph.h"
 #include "gettime.h"
 namespace pbbs {
-
-using namespace std;
-
-// **************************************************************
-//    Non-DETERMINISTIC BREADTH FIRST SEARCH
-// **************************************************************
-
-// **************************************************************
-//    THE NON-DETERMINISTIC BSF
-//    Updates the graph so that it is the BFS tree (i.e. the neighbors
-//      in the new graph are the children in the bfs tree)
-// **************************************************************
-
-struct nonNegF{bool operator() (intT a) {return (a>=0);}};
-
-pair<intT,intT> BFS(intT start, graph::graph<intT> GA) {
-  timer initTimer;
-  initTimer.start();
-  intT numVertices = GA.n;
-  intT numEdges = GA.m;
-  graph::vertex<intT> *G = GA.V;
-  intT* Frontier = newA(intT,numEdges);
-  intT* Visited = newA(intT,numVertices);
-  intT* FrontierNext = newA(intT,numEdges);
-  intT* Counts = newA(intT,numVertices);
-  {cilk_for(intT i = 0; i < numVertices; i++) Visited[i] = 0;}
-
-  Frontier[0] = start;
-  intT frontierSize = 1;
-  Visited[start] = 1;
-
-  intT totalVisited = 0;
-  int round = 0;
-  initTimer.reportStop("initialization");
-
-  timer scanTimer;
-  timer mainTimer;
-  timer filterTimer;
-  while (frontierSize > 0) {
-    round++;
-    totalVisited += frontierSize;
-
-    scanTimer.start();
-    {cilk_for (intT i=0; i < frontierSize; i++) 
-	Counts[i] = G[Frontier[i]].degree;}
-    intT nr = sequence::scan(Counts,Counts,frontierSize,utils::addF<intT>(),(intT)0);
-    scanTimer.stop();
-
-    mainTimer.start();
-    // For each vertexB in the frontier try to "hook" unvisited neighbors.
-    { cilk_for(intT i = 0; i < frontierSize; i++) {
-      intT k= 0;
-      intT v = Frontier[i];
-      intT o = Counts[i];
-      for (intT j=0; j < G[v].degree; j++) {
-        intT ngh = G[v].Neighbors[j];
-	if (Visited[ngh] == 0 && !__sync_val_compare_and_swap(&Visited[ngh], 0, 1)) {//utils::CAS(&Visited[ngh],(intT)0,(intT)1)) {
-	  FrontierNext[o+j] = G[v].Neighbors[k++] = ngh;
-	}
-	else FrontierNext[o+j] = -1;
-      }
-      G[v].degree = k;
+  
+  using namespace std;
+  
+  // **************************************************************
+  //    Non-DETERMINISTIC BREADTH FIRST SEARCH
+  // **************************************************************
+  
+  // **************************************************************
+  //    THE NON-DETERMINISTIC BSF
+  //    Updates the graph so that it is the BFS tree (i.e. the neighbors
+  //      in the new graph are the children in the bfs tree)
+  // **************************************************************
+  
+  struct nonNegF{bool operator() (intT a) {return (a>=0);}};
+  
+  pair<intT,intT> BFS(intT start, graph::graph<intT> GA) {
+    timer initTimer;
+    initTimer.start();
+    intT numVertices = GA.n;
+    intT numEdges = GA.m;
+    graph::vertex<intT> *G = GA.V;
+    intT* Frontier = newA(intT,numEdges);
+    intT* Visited = newA(intT,numVertices);
+    intT* FrontierNext = newA(intT,numEdges);
+    intT* Counts = newA(intT,numVertices);
+    {cilk_for(intT i = 0; i < numVertices; i++) Visited[i] = 0;}
+    
+    Frontier[0] = start;
+    intT frontierSize = 1;
+    Visited[start] = 1;
+    
+    intT totalVisited = 0;
+    int round = 0;
+    initTimer.reportStop("initialization");
+    
+    timer scanTimer;
+    timer mainTimer;
+    timer filterTimer;
+    while (frontierSize > 0) {
+      round++;
+      totalVisited += frontierSize;
+      
+      scanTimer.start();
+      {cilk_for (intT i=0; i < frontierSize; i++)
+        Counts[i] = G[Frontier[i]].degree;}
+      intT nr = sequence::scan(Counts,Counts,frontierSize,utils::addF<intT>(),(intT)0);
+      scanTimer.stop();
+      
+      mainTimer.start();
+      // For each vertexB in the frontier try to "hook" unvisited neighbors.
+      { cilk_for(intT i = 0; i < frontierSize; i++) {
+        intT k= 0;
+        intT v = Frontier[i];
+        intT o = Counts[i];
+        for (intT j=0; j < G[v].degree; j++) {
+          intT ngh = G[v].Neighbors[j];
+          if (Visited[ngh] == 0 && !__sync_val_compare_and_swap(&Visited[ngh], 0, 1)) {//utils::CAS(&Visited[ngh],(intT)0,(intT)1)) {
+            FrontierNext[o+j] /* = G[v].Neighbors[k++] */ = ngh;
+          } else {
+            FrontierNext[o+j] = -1;
+          }
+        }
+        //G[v].degree = k;
       }};
-    mainTimer.stop();
-    filterTimer.start();
-    // Filter out the empty slots (marked with -1)
-    frontierSize = sequence::filter(FrontierNext,Frontier,nr,nonNegF());filterTimer.stop();
+      mainTimer.stop();
+      filterTimer.start();
+      // Filter out the empty slots (marked with -1)
+      frontierSize = sequence::filter(FrontierNext,Frontier,nr,nonNegF());filterTimer.stop();
+    }
+    
+    //  std::cerr << totalVisited << " " << round << std::endl;
+    //  scanTimer.reportTotal("scan total");
+    mainTimer.reportTotal("main total");
+    filterTimer.reportTotal("filter total");
+    free(FrontierNext); free(Frontier); free(Counts); free(Visited);
+    return pair<intT,intT>(totalVisited,round);
   }
-  std::cerr << totalVisited << " " << round << std::endl;
-  scanTimer.reportTotal("scan total");
-  mainTimer.reportTotal("main total");
-  filterTimer.reportTotal("filter total");
-  free(FrontierNext); free(Frontier); free(Counts); free(Visited);
-  return pair<intT,intT>(totalVisited,round);
-}
 } //end namespace
 

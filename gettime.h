@@ -27,6 +27,7 @@ struct timer {
     gettimeofday(&now, &tzp);
     return ((double) now.tv_sec) + ((double) now.tv_usec)/1000000.;
 #endif
+    return 0.0;
   }
   void start () {
 #ifdef TIME_MEASURE
@@ -41,7 +42,8 @@ struct timer {
     totalTime += d;
     return d;
 #endif
-  } 
+    return 0.0;
+  }
   double stop (double weight) {
 #ifdef TIME_MEASURE
     on = 0;
@@ -50,13 +52,15 @@ struct timer {
     totalTime += weight*d;
     return d;
 #endif
-  } 
+    return 0.0;
+  }
 
   double total() {
 #ifdef TIME_MEASURE
     if (on) return totalTime + getTime() - lastTime;
     else return totalTime;
 #endif
+    return 0.0;
   }
 
   double next() {
@@ -68,6 +72,7 @@ struct timer {
     lastTime = t;
     return td;
 #endif
+    return 0.0;
   }
 
   void reportT(double time) {

@@ -178,7 +178,7 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
     if (findLCPs) {
       LCP12 = newA(intT,n12+3);
       cilk_for(intT i=0;i<n12+3;i++) 
-	LCP12[i]=0; //LCP's are all 0 if not recursing
+        LCP12[i]=0; //LCP's are all 0 if not recursing
     }
 
   }
@@ -249,16 +249,16 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
       int CLEN = 16;
       intT ii;
       for (ii=0; ii < CLEN; ii++) 
-	if (s[j+ii] != s[k+ii]) break;
+        if (s[j+ii] != s[k+ii]) break;
       if (ii != CLEN) LCP[i] = ii;
       else {
       	if (j%3 != 0 && k%3 != 0)  
-	  LCP[i] = computeLCP(LCP12, rank, RMQ, j, k, s, n); 
-	else if (j%3 != 2 && k%3 != 2)
-	  LCP[i] = 1 + computeLCP(LCP12, rank, RMQ, j+1, k+1, s, n);
-	else 
-	  LCP[i] = 2 + computeLCP(LCP12, rank, RMQ, j+2, k+2, s, n);
-	  }
+          LCP[i] = computeLCP(LCP12, rank, RMQ, j, k, s, n); 
+        else if (j%3 != 2 && k%3 != 2)
+          LCP[i] = 1 + computeLCP(LCP12, rank, RMQ, j+1, k+1, s, n);
+        else 
+          LCP[i] = 2 + computeLCP(LCP12, rank, RMQ, j+2, k+2, s, n);
+      }
     }
     LCPtime.stop();
     free(LCP12);
