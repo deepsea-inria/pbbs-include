@@ -271,9 +271,13 @@ pair<intT*,intT*> suffixArrayRec(intT* s, intT n, intT K, bool findLCPs) {
   return make_pair(SA,LCP);
 }
 
+void foo() {
+  printf("ouch");
+}
+
 pair<intT*,intT*> suffixArray(char* s, intT n, bool findLCPs) {
   // following line is used to fool icpc into starting the scheduler
-  if (n < 0) cilk_spawn printf("ouch");
+  if (n < 0) cilk_spawn foo();
   intT *ss = newA(intT,n+3); 
   ss[n] = ss[n+1] = ss[n+2] = 0;
   cilk_for (intT i=0; i < n; i++) ss[i] = s[i]+1;
