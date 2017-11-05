@@ -256,7 +256,7 @@ intT addRefiningVertices(vertex** v, intT n, intT nTotal, TriangleTable TT) {
 
 triangles<point2d> refine(triangles<point2d> Tri) {
   // following line is used to fool icpc into starting the scheduler
-  if (Tri.numPoints < 0) cilk_spawn printf("ouch");
+  if (Tri.numPoints < 0) cilk_spawn exit(1); //printf("ouch");
   startTime();
   int expandFactor = 4;
   intT n = Tri.numPoints;
