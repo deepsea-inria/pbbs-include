@@ -24,13 +24,20 @@ intT speculative_for(S step, intT s, intT e, int granularity,
 		     bool hasState = 1, int maxTries = -1) {
   if (maxTries < 0) maxTries = 100 + 200 * granularity;
   intT maxRoundSize = (e - s) / granularity + 1;
+#ifdef ENCORE_BENCHMARK
+  intT currentRoundSize = maxRoundSize;
+#endif
   intT* I = newA(intT,maxRoundSize);
   intT* Ihold = newA(intT, maxRoundSize);
   bool* keep = newA(bool, maxRoundSize);
   S *state;
   if (hasState) {
     state = newA(S, maxRoundSize);
+#ifdef ENCORE_BENCHMARK
     for (intT i = 0; i < maxRoundSize; i++) state[i] = step;
+#else
+    cilk_for (intT i = 0; i < maxRoundSize; i++) state[i] = step;
+#endif
   }
 
   int round = 0; 
@@ -44,7 +51,11 @@ intT speculative_for(S step, intT s, intT e, int granularity,
       std::cout << "speculativeLoop: too many iterations, increase maxTries parameter" << std::endl;
       abort();
     }
+#ifdef ENCORE_BENCHMARK
+    intT size = std::min(currentRoundSize, e - numberDone);
+#else
     intT size = std::min(maxRoundSize, e - numberDone);
+#endif
     totalProcessed += size;
 
     if (hasState) {
@@ -71,6 +82,15 @@ intT speculative_for(S step, intT s, intT e, int granularity,
     numberKeep = sequence::pack(I, Ihold, keep, size);
     std:: swap(I, Ihold);
     numberDone += size - numberKeep;
+
+#ifdef ENCORE_BENCHMARK
+    // adjust round size based on number of failed attempts
+    if (float(numberKeep)/float(size) > .2) 
+      currentRoundSize = std::max(currentRoundSize/2, 
+				  std::max(maxRoundSize/64 + 1, numberKeep));
+    else if (float(numberKeep)/float(size) < .1) 
+      currentRoundSize = std::min(currentRoundSize * 2, maxRoundSize);
+#endif
   }
   free(I); free(Ihold); free(keep); 
   if(hasState) free(state);
