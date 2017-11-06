@@ -246,10 +246,10 @@ namespace sequence {
     if (n >= 128 && (n & 511) == 0 && ((long) Fl & 3) == 0) {
       int* IFl = (int*) Fl;
       for (int k = 0; k < (n >> 9); k++) {
-	int rr = 0;
-	for (int j=0; j < 128; j++) rr += IFl[j];
-	r += (rr&255) + ((rr>>8)&255) + ((rr>>16)&255) + ((rr>>24)&255);
-	IFl += 128;
+        int rr = 0;
+        for (int j=0; j < 128; j++) rr += IFl[j];
+        r += (rr&255) + ((rr>>8)&255) + ((rr>>16)&255) + ((rr>>24)&255);
+        IFl += 128;
       }
     } else for (intT j=0; j < n; j++) r += Fl[j];
     return r;

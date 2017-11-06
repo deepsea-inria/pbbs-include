@@ -69,7 +69,7 @@ pair<intT*,intT> maximalMatching(graph::edgeArray<intT> G) {
   speculative_for(mStep, 0, m, 150, 0);
   _seq<intT> matchingIdx = sequence::filter(R, n, notMax());
   free(R); free(matched);
-  cout << "number of matches = " << matchingIdx.n << endl;
+  //  cout << "number of matches = " << matchingIdx.n << endl;
   return pair<intT*,intT>(matchingIdx.A, matchingIdx.n);
 }  
 } //end namespace
