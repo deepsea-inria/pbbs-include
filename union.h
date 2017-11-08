@@ -23,6 +23,11 @@
 
 #include "parallel.h"
 
+#ifndef UNION_FIND_INCLUDED_H_
+#define UNION_FIND_INCLUDED_H_
+
+namespace pbbs {
+
 struct unionFind {
   int* parents;
 
@@ -52,3 +57,7 @@ struct unionFind {
     parents[u] = v;
   }
 };
+
+} // end namespace
+
+#endif

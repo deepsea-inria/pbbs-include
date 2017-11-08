@@ -2,6 +2,9 @@
 #include "utils.h"
 #include "sequence.h"
 
+#ifndef SPECULATIVEFOR_INCLUDE
+#define SPECULATIVEFOR_INCLUDE
+
 namespace pbbs {
 
 struct reservation {
@@ -99,3 +102,5 @@ intT speculative_for(S step, intT s, intT e, int granularity,
 
 
 } // end namespace
+
+#endif
