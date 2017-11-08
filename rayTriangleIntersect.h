@@ -1,6 +1,9 @@
 #include "geometry.h"
 //#include "kdTree.h"
 
+#ifndef RAYTRIANGLE_INCLUDE
+#define RAYTRIANGLE_INCLUDE
+
 namespace pbbs {
 // There are 3 versions in here
 // The second is definitely slower than the first
@@ -208,3 +211,5 @@ inline floatT intersectRay(triInfo Ti, ray R) {
 //}
 */
 } //end namespace
+
+#endif
