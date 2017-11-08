@@ -26,6 +26,9 @@
 #include "utils.h"
 #include "speculativefor.h"
 
+#ifndef MATCHING_INCLUDED_H_
+#define MATCHING_INCLUDED_H_
+
 namespace pbbs {
 using namespace std;
 
@@ -73,3 +76,5 @@ pair<intT*,intT> maximalMatching(graph::edgeArray<intT> G) {
   return pair<intT*,intT>(matchingIdx.A, matchingIdx.n);
 }  
 } //end namespace
+
+#endif
