@@ -26,6 +26,9 @@
 #include "speculativefor.h"
 #include "union.h"
 
+#ifndef SPANNING_INCLUDE_H
+#define SPANNING_INCLUDE_H
+
 namespace pbbs {
 
 using namespace std;
@@ -69,3 +72,5 @@ pair<intT*, intT> spanningTree(graph::edgeArray<intT> G){
   return pair<intT*, intT>(stIdx.A, stIdx.n);
 }
 } // end namespace
+
+#endif
