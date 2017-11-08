@@ -25,6 +25,9 @@
 #include "parallel.h"
 #include "speculativefor.h"
 
+#ifndef MIS_INCLUDED_H
+#define MIS_INCLUDED_H
+
 namespace pbbs {
 
 using namespace std;
@@ -40,9 +43,9 @@ struct MISstep {
     for (intT j = 0; j < d; j++) {
       intT ngh = G[i].Neighbors[j];
       if (ngh < i) {
-	if (Flags[ngh] == 1) { flag = 2; return 1;}
-	// need to wait for higher priority neighbor to decide
-	else if (Flags[ngh] == 0) flag = 0; 
+        if (Flags[ngh] == 1) { flag = 2; return 1;}
+        // need to wait for higher priority neighbor to decide
+        else if (Flags[ngh] == 0) flag = 0; 
       }
     }
     return 1;
@@ -61,3 +64,5 @@ char* maximalIndependentSet(graph::graph<intT> GS) {
 }
 
 } // end namespace
+
+#endif
