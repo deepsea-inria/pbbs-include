@@ -163,7 +163,7 @@ pair<intT*, intT> mst(graph::wghEdgeArray<intT> G) {
   free(mstFlags);
   //nextTime("pack results");
 
-  cout << "n=" << G.n << " m=" << G.m << " nInMst=" << nInMst << endl;
+  //  cout << "n=" << G.n << " m=" << G.m << " nInMst=" << nInMst << endl;
   UF.del(); delete R;
   return pair<intT*, intT>(mst, nInMst);
 }
