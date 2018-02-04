@@ -67,7 +67,7 @@ pair<intT*, intT> spanningTree(graph::edgeArray<intT> G){
   unionFindStep<intT> UFStep(G.E, UF, R); 
   speculative_for(UFStep, 0, m, 200);
   _seq<intT> stIdx = sequence::filter((intT*) R, n, notMax());
-  cout << "Tree size = " << stIdx.n << endl;
+  //  cout << "Tree size = " << stIdx.n << endl;
   UF.del(); delete[] R;
   return pair<intT*, intT>(stIdx.A, stIdx.n);
 }
