@@ -1,17 +1,13 @@
 { pkgs   ? import <nixpkgs> {},
   stdenv ? pkgs.stdenv,
-  fetchurl,
+  pbbsIncludeSrc ? ./.,
   buildDocs ? false
 }:
 
 stdenv.mkDerivation rec {
-  name = "pbbs-include-${version}";
-  version = "v1.0";
+  name = "pbbs-include";
 
-  src = fetchurl {
-    url = "https://github.com/deepsea-inria/pbbs-include/archive/${version}.tar.gz";
-    sha256 = "0ikj8nffi68cd64mjzfhj2xj14ck5ps3qqf4j12676bmiadhz6hq";
-  };
+  src = pbbsIncludeSrc;
         
   installPhase = ''
     mkdir -p $out/include
